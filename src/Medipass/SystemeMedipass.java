@@ -5,11 +5,17 @@ import Medipass.utilisateur.Infirmier;
 import Medipass.utilisateur.Medecin;
 import Medipass.utilisateur.Pharmacien;
 import Medipass.utilisateur.Utilisateur;
+import Medipass.admin.Administrateur;
 
 import javax.lang.model.type.NullType;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Date;
+import java.util.*;
 
 public class SystemeMedipass {
 
@@ -246,76 +252,7 @@ public class SystemeMedipass {
                     .replaceAll("[^a-z]", ""); // Garder seulement les lettres
         }
 
-        //creer un compte admin
 
-        /*public static void creer_admin(){
-            Scanner sc = new Scanner(System.in);
-
-            System.out.println("=== CRÉATION DE COMPTE MÉDIPASS POUR L'ADMIN ===");
-
-            // Informations personnelles
-            System.out.println("Veuillez saisir votre nom : ");
-            String nom = sc.nextLine().trim();
-            while (nom.isEmpty()) {
-                System.out.println("Le nom est obligatoire : ");
-                nom = sc.nextLine().trim();
-            }
-
-            System.out.println("Veuillez saisir votre prénom : ");
-            String prenom = sc.nextLine().trim();
-            while (prenom.isEmpty()) {
-                System.out.println("Le prénom est obligatoire : ");
-                prenom = sc.nextLine().trim();
-            }
-
-            System.out.println("Veuillez saisir votre email : ");
-            String email = sc.nextLine().trim();
-
-            System.out.println("Veuillez saisir votre numéro de téléphone : ");
-            String numero_de_telephone = sc.nextLine().trim();
-
-            System.out.println("Veuillez saisir votre adresse : ");
-            String adresse = sc.nextLine().trim();
-
-            System.out.println("Veuillez saisir votre date de naissance : ");
-            String date_de_naissance = sc.nextLine().trim();
-
-            String id = IDENTIFIANT_ADMIN;
-
-
-            String motDePasse = MOT_DE_PASSE_ADMIN;
-
-
-            Utilisateur u = new Utilisateur(id, nom, prenom, email, numero_de_telephone, date_de_naissance, adresse, motDePasse);
-            utilisateurs.add(u);
-            System.out.println(" Compte créé avec succès !");
-            System.out.println(" Nom : " + u.getPrenom() + " " + u.getNom());
-            System.out.println(" Votre identifiant : " + id);
-            historique.add(" Compte administrateur créé  pour "+ u.getPrenom() + " " + u.getNom());
-        }*/
-
-
-    //  CONNEXION ADMIN
-    public static boolean connecterAdmin() {
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("=== CONNEXION ADMINISTRATEUR ===");
-        System.out.println("Identifiant admin : ");
-        String identifiant = sc.nextLine().trim();
-
-        System.out.println("Mot de passe admin : ");
-        String motDePasse = sc.nextLine().trim();
-
-        if (identifiant.equals(IDENTIFIANT_ADMIN) && motDePasse.equals(MOT_DE_PASSE_ADMIN)) {
-            System.out.println(" Connexion administrateur réussie!");
-            historique.add("Connexion de l'administrateur");
-            return true;
-        } else {
-            System.out.println(" Identifiant ou mot de passe administrateur incorrect");
-            historique.add("Echec de connexion de l'administrateur");
-            return false;
-        }
-    }
     //historique
     public static void listageHistorique() {
         System.out.println("=== HISTORIQUE DES ACTIONS ===");
@@ -550,7 +487,7 @@ public class SystemeMedipass {
         // ✅ MÉTHODE POUR EXPORTER TOUTES LES ORDONNANCES EN CSV
         public static void exporterOrdonnancesCSV(String nomFichier) {
             try {
-                java.io.FileWriter writer = new java.io.FileWriter(nomFichier + ".csv");
+                FileWriter writer = new FileWriter(nomFichier + ".csv");
 
                 // En-tête CSV
                 writer.write("ID;MedecinID;MedecinNom;PatientID;PatientNom;DatePrescription;DureeTraitement;Instructions;Statut\n");
@@ -573,7 +510,7 @@ public class SystemeMedipass {
         // ✅ MÉTHODE POUR IMPORTER DES ORDONNANCES DEPUIS CSV
         public static void importerOrdonnancesCSV(String nomFichier) {
             try {
-                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(nomFichier + ".csv"));
+                BufferedReader reader = new BufferedReader(new FileReader(nomFichier + ".csv"));
                 String line;
                 int count = 0;
                 Ordonnance currentOrdonnance = null;
@@ -601,7 +538,7 @@ public class SystemeMedipass {
                 System.out.println("✅ " + count + " ordonnances importées depuis " + nomFichier + ".csv");
                 historique.add("Import CSV des ordonnances: " + count + " ordonnances");
 
-            } catch (java.io.FileNotFoundException e) {
+            } catch (FileNotFoundException e) {
                 System.out.println("❌ Fichier non trouvé: " + nomFichier + ".csv");
             } catch (Exception e) {
                 System.out.println("❌ Erreur lors de l'import: " + e.getMessage());
@@ -611,7 +548,7 @@ public class SystemeMedipass {
         // ✅ MÉTHODE POUR EXPORTER LES PATIENTS EN CSV
         public static void exporterPatientsCSV(String nomFichier) {
             try {
-                java.io.FileWriter writer = new java.io.FileWriter(nomFichier + ".csv");
+                FileWriter writer = new FileWriter(nomFichier + ".csv");
 
                 // En-tête CSV
                 writer.write("ID;Nom;Prenom;Email;Telephone;DateNaissance;Adresse;Sexe\n");
@@ -641,7 +578,7 @@ public class SystemeMedipass {
         // ✅ MÉTHODE POUR EXPORTER L'HISTORIQUE EN CSV
         public static void exporterHistoriqueCSV(String nomFichier) {
             try {
-                java.io.FileWriter writer = new java.io.FileWriter(nomFichier + ".csv");
+                FileWriter writer = new FileWriter(nomFichier + ".csv");
 
                 writer.write("Date;Action\n");
 
@@ -837,6 +774,81 @@ public class SystemeMedipass {
           //  if (ordonnance != null) {
             //    ordonnance.afficherOrdonnanceDetaillee();
             //}
+
+        // ✅ MÉTHODES POUR OBTENIR LES LISTES D'UTILISATEURS
+        public static ArrayList<Utilisateur> getUtilisateurs() {
+            return new ArrayList<>(utilisateurs);
+        }
+
+        public static ArrayList<Medecin> getMedecins() {
+            ArrayList<Medecin> medecins = new ArrayList<>();
+            for (Utilisateur user : utilisateurs) {
+                if (user instanceof Medecin) {
+                    medecins.add((Medecin) user);
+                }
+            }
+            return medecins;
+        }
+
+        public static ArrayList<Infirmier> getInfirmiers() {
+            ArrayList<Infirmier> infirmiers = new ArrayList<>();
+            for (Utilisateur user : utilisateurs) {
+                if (user instanceof Infirmier) {
+                    infirmiers.add((Infirmier) user);
+                }
+            }
+            return infirmiers;
+        }
+
+        public static ArrayList<Pharmacien> getPharmaciens() {
+            ArrayList<Pharmacien> pharmaciens = new ArrayList<>();
+            for (Utilisateur user : utilisateurs) {
+                if (user instanceof Pharmacien) {
+                    pharmaciens.add((Pharmacien) user);
+                }
+            }
+            return pharmaciens;
+        }
+
+    public static ArrayList<Patient> getPatients() {
+        ArrayList<Patient> patients = new ArrayList<>();
+        for (Utilisateur user : utilisateurs) {
+            if (user.estPatient()) {  // ✅ Utiliser la méthode de vérification
+                Object patient = new Object();
+                patients.add((Patient) patient);
+            }
+        }
+        return patients;
+    }
+
+        public static ArrayList<Administrateur> getAdministrateurs() {
+            ArrayList<Administrateur> admins = new ArrayList<>();
+            for (Utilisateur user : utilisateurs) {
+                if (user instanceof Administrateur) {
+                    admins.add((Administrateur) user);
+                }
+            }
+            return admins;
+        }
+
+        // ✅ MÉTHODE POUR COMPTER LES UTILISATEURS PAR TYPE
+        public static HashMap<String, Integer> getStatistiquesUtilisateurs() {
+            HashMap<String, Integer> stats = new HashMap<>();
+            stats.put("MEDECIN", 0);
+            stats.put("INFIRMIER", 0);
+            stats.put("PHARMACIEN", 0);
+            stats.put("PATIENT", 0);
+            stats.put("ADMIN", 0);
+            stats.put("TOTAL", utilisateurs.size());
+
+            for (Utilisateur user : utilisateurs) {
+                String role = user.getRole();
+                stats.put(role, stats.getOrDefault(role, 0) + 1);
+            }
+
+            return stats;
+        }
+
 
 
 }

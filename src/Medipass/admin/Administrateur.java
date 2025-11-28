@@ -6,7 +6,13 @@ import Medipass.utilisateur.Infirmier;
 import Medipass.utilisateur.Pharmacien;
 import Medipass.gestion.GestionnaireHistorique;
 import Medipass.SystemeMedipass;
+import Medipass.patient.Patient;
+import Medipass.dossier.DossierMedical;
+import Medipass.gestion.GestionnaireDossiers;
+
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.*;
 
 public class Administrateur extends Utilisateur {
     private SystemeMedipass systeme;
@@ -16,7 +22,7 @@ public class Administrateur extends Utilisateur {
     // ✅ CONSTRUCTEURS
     public Administrateur(String id, String nom, String prenom, String email,
                           String numeroTelephone, String dateNaissance,
-                          String adresse, String motDePasse, SystemeMedipass systeme) {
+                          String adresse, String motDePasse ) {
         super(id, nom, prenom, email, numeroTelephone, dateNaissance, adresse, motDePasse, "ADMIN");
         this.systeme = systeme;
     }
@@ -148,32 +154,170 @@ public class Administrateur extends Utilisateur {
 
     // ✅ MÉTHODES DE GESTION DES UTILISATEURS
 
-    // LISTER TOUS LES UTILISATEURS
+    // ✅ MÉTHODE  POUR LISTER TOUS LES UTILISATEURS
     public void listerTousLesUtilisateurs() {
-        System.out.println("\n" + "=".repeat(50));
-        System.out.println("        📊 LISTE DES UTILISATEURS");
-        System.out.println("=".repeat(50));
+        System.out.println("\n" + "=".repeat(60));
+        System.out.println("            📊 LISTE COMPLÈTE DES UTILISATEURS");
+        System.out.println("=".repeat(60));
 
-        // Cette méthode devrait accéder à SystemeMedipass.getUtilisateurs()
-        System.out.println("👥 Fonctionnalité à implémenter avec l'accès à la liste des utilisateurs");
-        System.out.println("• Médecins : [nombre]");
-        System.out.println("• Infirmiers : [nombre]");
-        System.out.println("• Pharmaciens : [nombre]");
-        System.out.println("• Patients : [nombre]");
+        // Obtenir les statistiques
+        HashMap<String, Integer> stats = SystemeMedipass.getStatistiquesUtilisateurs();
 
-        GestionnaireHistorique.ajouterAction("Consultation de la liste des utilisateurs par admin " + this.prenom);
+        // Afficher les statistiques globales
+        System.out.println("📈 STATISTIQUES GLOBALES :");
+        System.out.println("   👥 Total utilisateurs : " + stats.get("TOTAL"));
+        System.out.println("   👑 Administrateurs : " + stats.get("ADMIN"));
+        System.out.println("   👨‍⚕️ Médecins : " + stats.get("MEDECIN"));
+        System.out.println("   👨‍⚕️ Infirmiers : " + stats.get("INFIRMIER"));
+        System.out.println("   💊 Pharmaciens : " + stats.get("PHARMACIEN"));
+        System.out.println("   👤 Patients : " + stats.get("PATIENT"));
+
+        System.out.println("\n" + "─".repeat(60));
+
+        // Afficher la liste détaillée par catégorie
+
+        // 👑 ADMINISTRATEURS
+        ArrayList<Administrateur> admins = SystemeMedipass.getAdministrateurs();
+        if (!admins.isEmpty()) {
+            System.out.println("👑 ADMINISTRATEURS (" + admins.size() + ") :");
+            for (Administrateur admin : admins) {
+                System.out.println("   • " + admin.getId() + " - " +
+                        admin.getPrenom() + " " + admin.getNom() +
+                        " - " + admin.getEmail());
+            }
+        }
+
+        // 👨‍⚕️ MÉDECINS
+        ArrayList<Medecin> medecins = SystemeMedipass.getMedecins();
+        if (!medecins.isEmpty()) {
+            System.out.println("\n👨‍⚕️ MÉDECINS (" + medecins.size() + ") :");
+            for (Medecin medecin : medecins) {
+                System.out.println("   • " + medecin.getId() + " - " +
+                        medecin.getPrenom() + " " + medecin.getNom() +
+                        " - " + medecin.getSpecialite() +
+                        " - " + (medecin.isDisponibilite() ? "🟢 Disponible" : "🔴 Indisponible"));
+            }
+        } else {
+            System.out.println("\n👨‍⚕️ Aucun médecin dans le système");
+        }
+
+        // 👨‍⚕️ INFIRMIERS
+        ArrayList<Infirmier> infirmiers = SystemeMedipass.getInfirmiers();
+        if (!infirmiers.isEmpty()) {
+            System.out.println("\n👨‍⚕️ INFIRMIERS (" + infirmiers.size() + ") :");
+            for (Infirmier infirmier : infirmiers) {
+                System.out.println("   • " + infirmier.getId() + " - " +
+                        infirmier.getPrenom() + " " + infirmier.getNom() +
+                        " - " + infirmier.getSpecialite() +
+                        " - " + (infirmier.isDisponibilite() ? "🟢 Disponible" : "🔴 Indisponible"));
+            }
+        } else {
+            System.out.println("\n👨‍⚕️ Aucun infirmier dans le système");
+        }
+
+        // 💊 PHARMACIENS
+        ArrayList<Pharmacien> pharmaciens = SystemeMedipass.getPharmaciens();
+        if (!pharmaciens.isEmpty()) {
+            System.out.println("\n💊 PHARMACIENS (" + pharmaciens.size() + ") :");
+            for (Pharmacien pharmacien : pharmaciens) {
+                System.out.println("   • " + pharmacien.getId() + " - " +
+                        pharmacien.getPrenom() + " " + pharmacien.getNom() +
+                        " - " + pharmacien.getSpecialite());
+            }
+        } else {
+            System.out.println("\n💊 Aucun pharmacien dans le système");
+        }
+
+        // 👤 PATIENTS
+        ArrayList<Patient> patients = SystemeMedipass.getPatients();
+        if (!patients.isEmpty()) {
+            System.out.println("\n👤 PATIENTS (" + patients.size() + ") :");
+            int compteur = 0;
+            for (Patient patient : patients) {
+                System.out.println("   • " + patient.getId() + " - " +
+                        patient.getPrenom() + " " + patient.getNom() +
+                        " - " + patient.getEmail());
+                compteur++;
+                // Limiter l'affichage pour éviter les listes trop longues
+                if (compteur >= 10) {
+                    System.out.println("   ... et " + (patients.size() - 10) + " autres patients");
+                    break;
+                }
+            }
+        } else {
+            System.out.println("\n👤 Aucun patient dans le système");
+        }
+
+        System.out.println("=".repeat(60));
+
+        GestionnaireHistorique.ajouterAction("Consultation de la liste des " + stats.get("TOTAL") + " utilisateurs par admin " + this.prenom);
     }
 
     // RECHERCHER UN UTILISATEUR
     public void rechercherUtilisateur() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("🔍 ID ou nom de l'utilisateur à rechercher : ");
-        String critere = sc.nextLine();
+        System.out.print("🔍 ID, nom ou prénom de l'utilisateur à rechercher : ");
+        String critere = sc.nextLine().trim().toLowerCase();
 
-        System.out.println("\nRecherche de : '" + critere + "'");
-        System.out.println("🔎 Cette fonctionnalité nécessite l'accès à la base des utilisateurs");
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("        🔍 RÉSULTATS DE LA RECHERCHE");
+        System.out.println("        Critère : '" + critere + "'");
+        System.out.println("=".repeat(50));
 
-        GestionnaireHistorique.ajouterAction("Recherche utilisateur '" + critere + "' par admin " + this.prenom);
+        ArrayList<Utilisateur> resultats = new ArrayList<>();
+
+        // Rechercher dans tous les utilisateurs
+        for (Utilisateur user : SystemeMedipass.getUtilisateurs()) {
+            if (user.getId().toLowerCase().contains(critere) ||
+                    user.getNom().toLowerCase().contains(critere) ||
+                    user.getPrenom().toLowerCase().contains(critere) ||
+                    user.getEmail().toLowerCase().contains(critere)) {
+                resultats.add(user);
+            }
+        }
+
+        if (!resultats.isEmpty()) {
+            System.out.println("✅ " + resultats.size() + " utilisateur(s) trouvé(s) :");
+            System.out.println();
+
+            for (Utilisateur user : resultats) {
+                System.out.println("🎯 " + user.getRole() + " :");
+                System.out.println("   ID : " + user.getId());
+                System.out.println("   Nom : " + user.getPrenom() + " " + user.getNom());
+                System.out.println("   Email : " + user.getEmail());
+                System.out.println("   Téléphone : " + user.getNumeroTelephone());
+
+                // ✅ CORRECTION : Utiliser les méthodes de vérification au lieu du casting direct
+                if (user.estMedecin()) {
+                    Medecin medecin = (Medecin) user; // ✅ Maintenant sûr car on a vérifié le type
+                    System.out.println("   Spécialité : " + medecin.getSpecialite());
+                    System.out.println("   Disponibilité : " + (medecin.isDisponibilite() ? "🟢 Oui" : "🔴 Non"));
+                } else if (user.estInfirmier()) {
+                    Infirmier infirmier = (Infirmier) user; // ✅ Maintenant sûr
+                    System.out.println("   Spécialité : " + infirmier.getSpecialite());
+                    System.out.println("   Disponibilité : " + (infirmier.isDisponibilite() ? "🟢 Oui" : "🔴 Non"));
+                } else if (user.estPharmacien()) {
+                    Pharmacien pharmacien = (Pharmacien) user; // ✅ Maintenant sûr
+                    System.out.println("   Spécialité : " + pharmacien.getSpecialite());
+                } else if (user.estPatient()) {
+                    Patient patient = new Patient(); // ✅ Maintenant sûr
+                    System.out.println("   Sexe : " + patient.getSexe());
+                    // Vérifier si le patient a un dossier médical
+                    DossierMedical dossier = GestionnaireDossiers.trouverDossierPatient(patient.getId());
+                    System.out.println("   Dossier médical : " + (dossier != null ? "✅ Existe" : "❌ Absent"));
+                }
+
+                System.out.println("   " + "─".repeat(30));
+            }
+        } else {
+            System.out.println("❌ Aucun utilisateur trouvé pour le critère : '" + critere + "'");
+            System.out.println("💡 Essayez avec :");
+            System.out.println("   - Un ID (ex: MED_DUPO_J_001)");
+            System.out.println("   - Un nom (ex: Martin)");
+            System.out.println("   - Un prénom (ex: Marie)");
+        }
+
+        GestionnaireHistorique.ajouterAction("Recherche utilisateur '" + critere + "' (" + resultats.size() + " résultats) par admin " + this.prenom);
     }
 
     // RÉINITIALISER UN MOT DE PASSE
@@ -349,6 +493,8 @@ public class Administrateur extends Utilisateur {
         System.out.println("=".repeat(50));
     }
 
+
+
     // ✅ MÉTHODE POUR AFFICHER LE MENU ADMIN
     public void afficherMenuAdministrateur() {
         Scanner sc = new Scanner(System.in);
@@ -510,6 +656,79 @@ public class Administrateur extends Utilisateur {
                 default:
                     System.out.println("❌ Choix invalide");
             }
+        }
+    }
+
+    //creer un compte admin
+
+        public static void creer_admin(){
+            Scanner sc = new Scanner(System.in);
+
+            System.out.println("=== CRÉATION DE COMPTE MÉDIPASS POUR L'ADMIN ===");
+
+            // Informations personnelles
+            System.out.println("Veuillez saisir votre nom : ");
+            String nom = sc.nextLine().trim();
+            while (nom.isEmpty()) {
+                System.out.println("Le nom est obligatoire : ");
+                nom = sc.nextLine().trim();
+            }
+
+            System.out.println("Veuillez saisir votre prénom : ");
+            String prenom = sc.nextLine().trim();
+            while (prenom.isEmpty()) {
+                System.out.println("Le prénom est obligatoire : ");
+                prenom = sc.nextLine().trim();
+            }
+
+            System.out.println("Veuillez saisir votre email : ");
+            String email = sc.nextLine().trim();
+
+            System.out.println("Veuillez saisir votre numéro de téléphone : ");
+            String numero_de_telephone = sc.nextLine().trim();
+
+            System.out.println("Veuillez saisir votre adresse : ");
+            String adresse = sc.nextLine().trim();
+
+            System.out.println("Veuillez saisir votre date de naissance : ");
+            String date_de_naissance = sc.nextLine().trim();
+
+            String id = ID_ADMIN_PRINCIPAL;
+
+
+            String motDePasse = MOT_DE_PASSE_ADMIN;
+
+            //SystemeMedipass systeme = new SystemeMedipass();
+
+
+            Administrateur a = new Administrateur(id, nom, prenom, email, numero_de_telephone, date_de_naissance, adresse, motDePasse);
+            //utilisateurs.add(u);
+            System.out.println(" Compte créé avec succès !");
+            System.out.println(" Nom : " + a.getPrenom() + " " + a.getNom());
+            System.out.println(" Votre identifiant : " + id);
+            GestionnaireHistorique.ajouterAction(" Compte administrateur créé  pour "+ a.getPrenom() + " " + a.getNom());
+        }
+
+
+    //  CONNEXION ADMIN
+    public static boolean connecterAdmin() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("=== CONNEXION ADMINISTRATEUR ===");
+        System.out.println("Identifiant admin : ");
+        String identifiant = sc.nextLine().trim();
+
+        System.out.println("Mot de passe admin : ");
+        String motDePasse = sc.nextLine().trim();
+
+        if (identifiant.equals(ID_ADMIN_PRINCIPAL) && motDePasse.equals(MOT_DE_PASSE_ADMIN)) {
+            System.out.println(" Connexion administrateur réussie!");
+            GestionnaireHistorique.ajouterAction("Connexion de l'administrateur");
+            return true;
+        } else {
+            System.out.println(" Identifiant ou mot de passe administrateur incorrect");
+            GestionnaireHistorique.ajouterAction("Echec de connexion de l'administrateur");
+            return false;
         }
     }
 

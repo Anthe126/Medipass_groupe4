@@ -41,14 +41,23 @@ public class Utilisateur {
     }
 
     // ✅ MÉTHODES DE CONNEXION/DÉCONNEXION
-    public boolean seConnecter(String motDePasseTente) {
-        if (this.motDePasse.equals(motDePasseTente)) {
-            this.estConnecte = true;
-            GestionnaireHistorique.ajouterAction("Connexion de " + this.prenom + " " + this.nom + " (" + this.role + ")");
-            System.out.println("✅ Connexion réussie ! Bienvenue " + this.prenom);
+    public static boolean seConnecter() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("=== CONNEXION UTILISATEUR ===");
+        System.out.println("Identifiant utilisateur : ");
+        String identifiant = sc.nextLine().trim();
+
+        System.out.println("Mot de passe utilisateur : ");
+        String motDePasse = sc.nextLine().trim();
+
+        if (identifiant.equals(identifiant) && motDePasse.equals(motDePasse)) {
+            System.out.println(" Connexion administrateur réussie!");
+            GestionnaireHistorique.ajouterAction("Connexion du utilisateur id :"+ identifiant);
             return true;
         } else {
-            System.out.println("❌ Mot de passe incorrect");
+            System.out.println(" Identifiant ou mot de passe administrateur incorrect");
+            GestionnaireHistorique.ajouterAction("Echec de connexion de l'administrateur");
             return false;
         }
     }

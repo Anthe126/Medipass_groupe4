@@ -86,10 +86,12 @@ public class DossierMedical {
         System.out.println("✅ Ordonnance ajoutée au dossier médical");
     }
 
+    // ✅ MÉTHODES DE GESTION DES CONSULTATIONS
     public void ajouterConsultation(Consultation consultation) {
         this.consultations.add(consultation);
         this.dateDerniereModification = new Date();
         System.out.println("✅ Consultation ajoutée au dossier médical");
+        GestionnaireHistorique.ajouterAction("Consultation " + consultation.getIdConsultation() + " ajoutée au dossier " + id);
     }
 
     public void ajouterAntecedant(Antecedant antecedant) {
@@ -237,6 +239,54 @@ public class DossierMedical {
             }
         }
 
-        // ... autres méthodes ...
+        public void afficherConsultations() {
+            System.out.println("\n🩺 CONSULTATIONS DU DOSSIER (" + consultations.size() + ")");
+            if (consultations.isEmpty()) {
+                System.out.println("Aucune consultation enregistrée");
+                return;
+            }
+
+            for (int i = 0; i < consultations.size(); i++) {
+                Consultation consultation = consultations.get(i);
+                System.out.println((i + 1) + ". " + consultation.toString());
+            }
+        }
+
+        public void afficherConsultationsDetaillees() {
+            System.out.println("\n📋 CONSULTATIONS DÉTAILLÉES");
+            for (Consultation consultation : consultations) {
+                consultation.afficherConsultation();
+            }
+        }
+
+        public void afficherConsultationsRecentres() {
+            System.out.println("\n📅 CONSULTATIONS RÉCENTES");
+            // Trier par date (les plus récentes d'abord)
+            consultations.sort((c1, c2) -> c2.getDateConsultation().compareTo(c1.getDateConsultation()));
+
+            int limit = Math.min(5, consultations.size());
+            for (int i = 0; i < limit; i++) {
+                Consultation consultation = consultations.get(i);
+                System.out.println((i + 1) + ". " + consultation.toString());
+            }
+        }
+
+        public ArrayList<Consultation> getConsultationsParMedecin(String medecinId) {
+            ArrayList<Consultation> consultationsMedecin = new ArrayList<>();
+            for (Consultation consultation : consultations) {
+                if (consultation.getMedecinId().equals(medecinId)) {
+                    consultationsMedecin.add(consultation);
+                }
+            }
+            return consultationsMedecin;
+        }
+
+        // ✅ MÉTHODE POUR CRÉER UNE CONSULTATION DIRECTEMENT DANS LE DOSSIER
+        public void creerConsultationDansDossier(String medecinId, String medecinNom) {
+            Consultation nouvelleConsultation = Consultation.creerConsultationInteractive(medecinId, medecinNom);
+            if (nouvelleConsultation != null) {
+                ajouterConsultation(nouvelleConsultation);
+            }
+        }
 
 }

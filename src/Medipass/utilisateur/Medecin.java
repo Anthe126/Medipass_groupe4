@@ -80,13 +80,91 @@ public class Medecin extends ProDeSante {
         // Ajouter plus de statistiques
     }
 
-    public  void creerPatient(){
+    public void creerPatient() {
         SystemeMedipass.ajouterPatient();
     }
 
-    // ✅ GETTERS ET SETTERS
-    public int getAnneesExperience() { return anneesExperience; }
-    public void setAnneesExperience(int anneesExperience) { this.anneesExperience = anneesExperience; }
+    // ✅ MÉTHODES POUR LES CONSULTATIONS
+    // ✅ MÉTHODE STATIQUE POUR PRESCRIRE UNE ORDONNANCE
+    public static void prescrireOrdonnanceStatic() {
+        SystemeMedipass.prescrireMedicament(null);
+    }
+
+    // ✅ MÉTHODE STATIQUE POUR CRÉER UNE CONSULTATION
+    public static void creerConsultationStatic() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("        🩺 CRÉATION D'UNE CONSULTATION");
+        System.out.println("=".repeat(50));
+
+        System.out.print("ID du patient : ");
+        String patientId = sc.nextLine();
+
+        // Vérifier que le patient a un dossier
+        DossierMedical dossier = GestionnaireDossiers.trouverDossierPatient(patientId);
+        if (dossier == null) {
+            System.out.println("❌ Patient non trouvé ou sans dossier médical");
+            return;
+        }
+
+        // Demander l'ID du médecin
+        System.out.print("ID du médecin : ");
+        String medecinId = sc.nextLine();
+        System.out.print("Nom du médecin : ");
+        String medecinNom = sc.nextLine();
+
+        // Créer la consultation dans le dossier
+        dossier.creerConsultationDansDossier(medecinId, medecinNom);
+    }
+
+
+    public void mesConsultations() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("        📋 MES CONSULTATIONS");
+        System.out.println("=".repeat(50));
+
+        int totalConsultations = 0;
+
+        // Parcourir tous les dossiers pour trouver mes consultations
+            /*for (DossierMedical dossier : GestionnaireDossiers.getTousLesDossiers()) {
+                ArrayList<Consultation> mesConsultations = dossier.getConsultationsParMedecin(this.id);
+                if (!mesConsultations.isEmpty()) {
+                    System.out.println("\nPatient : " + dossier.getIdPatient());
+                    for (Consultation consultation : mesConsultations) {
+                        System.out.println("  • " + consultation.toString());
+                        totalConsultations++;
+                    }
+                }
+            }
+
+            if (totalConsultations == 0) {
+                System.out.println("Aucune consultation trouvée");
+            } else {
+                System.out.println("\n📊 Total : " + totalConsultations + " consultation(s)");
+            }
+        }*/
+
+        /*public void consulterHistoriquePatient () {
+            Scanner sc = new Scanner(System.in);
+
+            System.out.print("ID du patient : ");
+            String patientId = sc.nextLine();
+
+            DossierMedical dossier = GestionnaireDossiers.trouverDossierPatient(patientId);
+            if (dossier != null) {
+                System.out.println("\n📅 HISTORIQUE DES CONSULTATIONS");
+                dossier.afficherConsultationsDetaillees();
+            } else {
+                System.out.println("❌ Dossier non trouvé");
+            }
+        }*/
+
+
+        // ✅ GETTERS ET SETTERS
+        //public int getAnneesExperience() { return anneesExperience; }
+        //public void setAnneesExperience(int anneesExperience) { this.anneesExperience = anneesExperience; }
+    }
 }
 
 
