@@ -40,7 +40,7 @@ public class Main {
             essais++;
         } while (!categorie.contains(role));
         System.out.println("==========================================\n");
-        // dileme basé sur le role, userResponse & quitter ;
+        // //
         int choix = 0;
         String userResponse;
         
