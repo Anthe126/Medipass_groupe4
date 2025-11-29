@@ -9,6 +9,8 @@ import Medipass.patient.Patient;
 import Medipass.gestion.GestionnaireDossiers;
 import Medipass.gestion.GestionnaireHistorique;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -26,57 +28,131 @@ public class Main {
 
         boolean quitter = false;
 
-        while (!quitter) {
-            afficherMenuPrincipal();
-            int choix = saisirEntier("Votre choix : ");
+        // debut de modification
+        List<String> categorie = Arrays.asList("Administrateur", "Utilisateur");
+        System.out.println("\nQuel serait votre role dans ce systeme ?\n [ Administrateur || Utilisateur ]");
+        String role;
+        int essais = 0;
+        do {
+            if (essais > 0) 
+                System.out.println("*** Recommencez");
+            role = scanner.nextLine();
+            essais++;
+        } while (!categorie.contains(role));
+        System.out.println("==========================================\n");
+        // dileme basé sur le role, userResponse & quitter ;
+        int choix = 0;
+        String userResponse;
+        
+        System.out.println("Est-ce votre votre premiere utilisation de notre systeme? [ Y / N ]");
+        do {
+            userResponse = scanner.nextLine();
+        } while ( !userResponse.equals("Y") && !userResponse.equals("N") );
+        //
+        if ( userResponse.equals("Y") ) {
+            if ( role.equals(categorie.getFirst()) ) { // Administrateur
+                System.out.println("\nAlors veuillez \n ");
+                System.out.println("1. 👤 Creer compte adminstrateur");
+                System.out.println("0. ❌ Quitter");
+                while (!quitter) {
+                    choix = saisirEntier("Votre choix : ");
+                    switch (choix) {
+                        case 1:
+                            creerCompteAdmintrateur();
+                            quitter = true;
+                            System.out.println("==========================================\n");
+                            break;
+                        case 0:
+                            quitter = true;
+                            System.out.println("==========================================\n");
+                            System.out.println("Dommage!\n System Shutin' down! \n");
+                            GestionnaireDossiers.sauvegarderEtat(); // Sauvegarder avant de quitter
+                            break;
+                        default:
+                            System.out.println("❌ Choix invalide. Veuillez réessayer.");
+                    }
+                }
+            } else { // Utilisateur
+                System.out.println("\nComme il en est ainsi \n veuillez attendre l'intervention d'un Administrateur \n ");
+                quitter = true;
+                System.out.println("_________ATTENTE_DE_L'INTERVENTION_D'UN_ADMIN_________");
+                System.out.println("==========================================\n");
+            }
+            // handlin' boolean quitter
+            if (choix == 1) // ou autres valueurs [ sauf 0 -> quitter ]
+                quitter = false;
+        } // else suite [ Connection ]
 
-            switch (choix) {
-                case 1:
-                    connexionAdmin();
-                    break;
-                case 2:
-                    connexionMedecin();
-                    break;
-                case 3:
-                    connexionInfirmier();
-                    break;
-                case 4:
-                    connexionPharmacien();
-                    break;
-                case 5:
-                    creerCompteAdmintrateur();
-                    break;
-                case 6:
-                    creerCompteUtilisateur();
-                    break;
-                case 7:
-                    afficherStatistiquesRapides();
-                    break;
-                case 0:
-                    quitter = true;
-                    System.out.println("👋 Merci d'avoir utilisé Medipass !");
-                    // Sauvegarder avant de quitter
-                    GestionnaireDossiers.sauvegarderEtat();
-                    break;
-                default:
-                    System.out.println("❌ Choix invalide. Veuillez réessayer.");
+        while (!quitter) {
+            if (role.equals(categorie.getFirst())) { // Administrateur
+                afficherMenuPrincipalAdmin();
+                choix = saisirEntier("Votre choix : ");
+                
+                switch (choix) {
+                    case 1:
+                        connexionAdmin();
+                        break;
+                    case 2:
+                        afficherStatistiquesRapides();
+                        break;
+                    case 0:
+                        quitter = true;
+                        System.out.println("👋 Merci d'avoir utilisé Medipass !");
+                        // Sauvegarder avant de quitter
+                        GestionnaireDossiers.sauvegarderEtat();
+                        break;
+                    default:
+                        System.out.println("❌ Choix invalide. Veuillez réessayer.");
+                }
+            } else {
+                afficherMenuPrincipalUser();
+                choix = saisirEntier("Votre choix : ");
+                switch (choix) {
+                    case 1:
+                        connexionMedecin();
+                        break;
+                    case 2:
+                        connexionInfirmier();
+                        break;
+                    case 3:
+                        connexionPharmacien();
+                        break;/*
+                    case 4:
+                        afficherStatistiquesRapides();
+                        break;*/
+                    case 0:
+                        quitter = true;
+                        System.out.println("👋 Merci d'avoir utilisé Medipass !");
+                        // Sauvegarder avant de quitter
+                        GestionnaireDossiers.sauvegarderEtat();
+                        break;
+                    default:
+                        System.out.println("❌ Choix invalide. Veuillez réessayer.");
+                }
             }
         }
-
         scanner.close();
     }
 
-    private static void afficherMenuPrincipal() {
+    // modif : afficherMenuPrincipal ---> Admin & User
+    private static void afficherMenuPrincipalAdmin() {
         System.out.println("\n" + "=".repeat(50));
-        System.out.println("            🏠 MENU PRINCIPAL");
+        System.out.println("            🏠 MENU PRINCIPAL ADMIN");
         System.out.println("=".repeat(50));
         System.out.println("1. 👑 Connexion Administrateur");
-        System.out.println("2. 👨‍⚕️  Connexion Médecin");
-        System.out.println("3. 👨‍⚕️  Connexion Infirmier");
-        System.out.println("4. 💊 Connexion Pharmacien");
-        System.out.println("5. 👤 Creer compte adminstrateur");
-        System.out.println("6. 📝 Créer un compte utilisateur");
-        System.out.println("7. 📊 Statistiques rapides");
+        System.out.println("2. 📊 Statistiques rapides");
+        System.out.println("0. 🚪 Quitter");
+        System.out.println("=".repeat(50));
+    }
+
+    private static void afficherMenuPrincipalUser() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("            🏠 MENU PRINCIPAL USERS");
+        System.out.println("=".repeat(50));
+        System.out.println("1. 👨‍⚕️  Connexion Médecin");
+        System.out.println("2. 👨‍⚕️  Connexion Infirmier");
+        System.out.println("3. 💊 Connexion Pharmacien");
+        //System.out.println("4. 📊 Statistiques rapides");
         System.out.println("0. 🚪 Quitter");
         System.out.println("=".repeat(50));
     }
