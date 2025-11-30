@@ -273,6 +273,6 @@ Pour toute assistance technique :
 
 Ce manuel et README couvrent tous les aspectsde notre système !
 
-Merci d'uriliser notre Systeme !!!!
+Merci d'utiliser notre système !!!!
 
 Au revoir !!
