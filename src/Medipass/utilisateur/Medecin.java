@@ -5,6 +5,8 @@ import Medipass.dossier.Ordonnance;
 import Medipass.gestion.GestionnaireDossiers;
 import Medipass.dossier.DossierMedical;
 import Medipass.SystemeMedipass;
+import Medipass.patient.Patient;
+
 import java.util.Scanner;
 
 public class Medecin extends ProDeSante {
@@ -41,8 +43,8 @@ public class Medecin extends ProDeSante {
         System.out.println("\n=== CRÉATION DE DOSSIER MÉDICAL ===");
         System.out.print("ID du patient: ");
         String patientId = sc.nextLine();
-
-        // Cette méthode devrait être dans GestionnaireDossiers
+        Patient patient = SystemeMedipass.trouverPatientParId(patientId);
+        GestionnaireDossiers.creerDossierPourPatient(patient, this.id);
         System.out.println("📁 Création du dossier pour le patient: " + patientId);
         // Implémentation à compléter avec GestionnaireDossiers
     }

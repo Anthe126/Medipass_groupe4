@@ -5,7 +5,6 @@ import Medipass.utilisateur.Utilisateur;
 import Medipass.utilisateur.Medecin;
 import Medipass.utilisateur.Infirmier;
 import Medipass.utilisateur.Pharmacien;
-import Medipass.patient.Patient;
 import Medipass.gestion.GestionnaireDossiers;
 import Medipass.gestion.GestionnaireHistorique;
 
@@ -26,226 +25,306 @@ public class Main {
         // Charger les données sauvegardées
         GestionnaireDossiers.chargerEtat();
 
-        boolean quitter = false;
+        boolean applicationActive = true;
 
-        // debut de modification
-        List<String> categorie = Arrays.asList("Administrateur", "Utilisateur");
-        System.out.println("\nQuel serait votre role dans ce systeme ?\n [ Administrateur || Utilisateur ]");
-        String role;
-        int essais = 0;
-        do {
-            if (essais > 0) 
-                System.out.println("*** Recommencez");
-            role = scanner.nextLine();
-            essais++;
-        } while (!categorie.contains(role));
-        System.out.println("==========================================\n");
-        // //
-        int choix = 0;
-        String userResponse;
-        
-        System.out.println("Est-ce votre votre premiere utilisation de notre systeme? [ Y / N ]");
-        do {
-            userResponse = scanner.nextLine();
-        } while ( !userResponse.equals("Y") && !userResponse.equals("N") );
-        //
-        if ( userResponse.equals("Y") ) {
-            if ( role.equals(categorie.getFirst()) ) { // Administrateur
-                System.out.println("\nAlors veuillez \n ");
-                System.out.println("1. 👤 Creer compte adminstrateur");
-                System.out.println("0. ❌ Quitter");
-                while (!quitter) {
-                    choix = saisirEntier("Votre choix : ");
-                    switch (choix) {
-                        case 1:
-                            creerCompteAdmintrateur();
-                            quitter = true;
-                            System.out.println("==========================================\n");
-                            break;
-                        case 0:
-                            quitter = true;
-                            System.out.println("==========================================\n");
-                            System.out.println("Dommage!\n System Shutin' down! \n");
-                            GestionnaireDossiers.sauvegarderEtat(); // Sauvegarder avant de quitter
-                            break;
-                        default:
-                            System.out.println("❌ Choix invalide. Veuillez réessayer.");
-                    }
-                }
-            } else { // Utilisateur
-                System.out.println("\nComme il en est ainsi \n veuillez attendre l'intervention d'un Administrateur \n ");
-                quitter = true;
-                System.out.println("_________ATTENTE_DE_L'INTERVENTION_D'UN_ADMIN_________");
-                System.out.println("==========================================\n");
+        while (applicationActive) {
+            // ÉTAPE 1 : Choix du rôle
+            String role = choisirRole();
+            if (role == null) {
+                applicationActive = false;
+                continue;
             }
-            // handlin' boolean quitter
-            if (choix == 1) // ou autres valueurs [ sauf 0 -> quitter ]
-                quitter = false;
-        } // else suite [ Connection ]
 
-        while (!quitter) {
-            if (role.equals(categorie.getFirst())) { // Administrateur
-                afficherMenuPrincipalAdmin();
-                choix = saisirEntier("Votre choix : ");
-                
-                switch (choix) {
-                    case 1:
-                        connexionAdmin();
-                        break;
-                    case 2:
-                        afficherStatistiquesRapides();
-                        break;
-                    case 0:
-                        quitter = true;
-                        System.out.println("👋 Merci d'avoir utilisé Medipass !");
-                        // Sauvegarder avant de quitter
-                        GestionnaireDossiers.sauvegarderEtat();
-                        break;
-                    default:
-                        System.out.println("❌ Choix invalide. Veuillez réessayer.");
+            // ÉTAPE 2 : Première utilisation
+            if (estPremiereUtilisation()) {
+                if (role.equals("Administrateur")) {
+                    gererPremiereUtilisationAdmin();
+                } else {
+                    attenteInterventionAdmin();
                 }
-            } else {
-                afficherMenuPrincipalUser();
-                choix = saisirEntier("Votre choix : ");
-                switch (choix) {
-                    case 1:
-                        connexionMedecin();
-                        break;
-                    case 2:
-                        connexionInfirmier();
-                        break;
-                    case 3:
-                        connexionPharmacien();
-                        break;/*
-                    case 4:
-                        afficherStatistiquesRapides();
-                        break;*/
-                    case 0:
-                        quitter = true;
-                        System.out.println("👋 Merci d'avoir utilisé Medipass !");
-                        // Sauvegarder avant de quitter
-                        GestionnaireDossiers.sauvegarderEtat();
-                        break;
-                    default:
-                        System.out.println("❌ Choix invalide. Veuillez réessayer.");
-                }
+                continue; // Retour au choix du rôle après première utilisation
             }
+
+            // ÉTAPE 3 : Menu principal selon le rôle
+            applicationActive = gererMenuPrincipal(role);
         }
+
+        // Fermeture propre
+        System.out.println("👋 Merci d'avoir utilisé Medipass !");
+        GestionnaireDossiers.sauvegarderEtat();
         scanner.close();
     }
 
-    // modif : afficherMenuPrincipal ---> Admin & User
-    private static void afficherMenuPrincipalAdmin() {
+    // ==================== MÉTHODES MODULAIRES ====================
+
+    /**
+     * Étape 1 : Choix du rôle (Administrateur ou Utilisateur)
+     */
+    private static String choisirRole() {
+        List<String> roles = Arrays.asList("Administrateur", "Utilisateur");
+
         System.out.println("\n" + "=".repeat(50));
-        System.out.println("            🏠 MENU PRINCIPAL ADMIN");
+        System.out.println("        CHOIX DU RÔLE");
         System.out.println("=".repeat(50));
-        System.out.println("1. 👑 Connexion Administrateur");
-        System.out.println("2. 📊 Statistiques rapides");
-        System.out.println("0. 🚪 Quitter");
+        System.out.println("Voulez-vous utiliser le système en tant que :");
+        System.out.println("1. 👑 Administrateur");
+        System.out.println("2. 👤 Utilisateur");
+        System.out.println("3. 🧪 Mode Démonstration");
+        System.out.println("0. ❌ Quitter l'application");
         System.out.println("=".repeat(50));
+
+        int choix = saisirEntier("Votre choix : ");
+
+        switch (choix) {
+            case 1: return "Administrateur";
+            case 2: return "Utilisateur";
+            case 3:
+                lancerModeDemonstration();
+                return choisirRole(); // Retour au choix après démo
+            case 0: return null; // Quitter
+            default:
+                System.out.println("❌ Choix invalide. Veuillez réessayer.");
+                return choisirRole(); // Rappel récursif
+        }
     }
 
-    private static void afficherMenuPrincipalUser() {
+    /**
+     * Lance le mode démonstration
+     */
+    private static void lancerModeDemonstration() {
         System.out.println("\n" + "=".repeat(50));
-        System.out.println("            🏠 MENU PRINCIPAL USERS");
+        System.out.println("        🧪 MODE DÉMONSTRATION");
         System.out.println("=".repeat(50));
-        System.out.println("1. 👨‍⚕️  Connexion Médecin");
-        System.out.println("2. 👨‍⚕️  Connexion Infirmier");
-        System.out.println("3. 💊 Connexion Pharmacien");
-        //System.out.println("4. 📊 Statistiques rapides");
-        System.out.println("0. 🚪 Quitter");
+        System.out.println("Ce mode va :");
+        System.out.println("✅ Créer des utilisateurs de test");
+        System.out.println("✅ Générer des dossiers médicaux complets");
+        System.out.println("✅ Remplir avec des données réalistes");
+        System.out.println("✅ Vous permettre de tester toutes les fonctionnalités");
+
+        System.out.print("\nVoulez-vous lancer la démonstration ? [O/N] : ");
+        String confirmation = scanner.nextLine().trim().toUpperCase();
+
+        if (confirmation.equals("O")) {
+            Demonstration.lancerDemonstration();
+            System.out.println("\n🎯 Démonstration terminée. Retour au menu principal...");
+            System.out.println("Appuyez sur Entrée pour continuer...");
+            scanner.nextLine();
+        } else {
+            System.out.println("❌ Démonstration annulée.");
+        }
+    }
+
+    /**
+     * Étape 2 : Vérification première utilisation
+     */
+    private static boolean estPremiereUtilisation() {
+        System.out.print("\nEst-ce votre première utilisation du système ? [O/N] : ");
+        String reponse = scanner.nextLine().trim().toUpperCase();
+
+        while (!reponse.equals("O") && !reponse.equals("N")) {
+            System.out.print("❌ Réponse invalide. Veuillez saisir O ou N : ");
+            reponse = scanner.nextLine().trim().toUpperCase();
+        }
+
+        return reponse.equals("O");
+    }
+
+    /**
+     * Gestion première utilisation Admin
+     */
+    private static void gererPremiereUtilisationAdmin() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("        PREMIÈRE UTILISATION - ADMIN");
         System.out.println("=".repeat(50));
-    }
-
-    // 🔐 CONNEXION ADMINISTRATEUR
-    private static void connexionAdmin() {
-        System.out.println("\n=== CONNEXION ADMINISTRATEUR ===");
-
-        if (Administrateur.connecterAdmin()) {
-            // Créer une instance d'admin temporaire pour le menu
-            Administrateur admin = new Administrateur();
-            admin.afficherMenuAdministrateur();
-        } else {
-            System.out.println("❌ Échec de la connexion administrateur.");
-        }
-    }
-
-    // 👨‍⚕️ CONNEXION MÉDECIN
-    private static void connexionMedecin() {
-        System.out.println("\n=== CONNEXION MÉDECIN ===");
-
-        if (Utilisateur.seConnecter()) {
-            // Simulation d'un médecin connecté
-            Medecin medecin = new Medecin();
-            menuMedecin(medecin);
-        } else {
-            System.out.println("❌ Échec de la connexion médecin.");
-        }
-    }
-
-    // 👨‍⚕️ CONNEXION INFIRMIER
-    private static void connexionInfirmier() {
-        System.out.println("\n=== CONNEXION INFIRMIER ===");
-
-        if (Utilisateur.seConnecter()) {
-            Infirmier infirmier = new Infirmier();
-            menuInfirmier(infirmier);
-        } else {
-            System.out.println("❌ Échec de la connexion infirmier.");
-        }
-    }
-
-    // 💊 CONNEXION PHARMACIEN
-    private static void connexionPharmacien() {
-        System.out.println("\n=== CONNEXION PHARMACIEN ===");
-
-        if (Utilisateur.seConnecter()) {
-            Pharmacien pharmacien = new Pharmacien();
-            menuPharmacien(pharmacien);
-        } else {
-            System.out.println("❌ Échec de la connexion pharmacien.");
-        }
-    }
-
-    // 👤 CREATION COMPTE ADMINTRATEUR
-    private static void creerCompteAdmintrateur() {
-        System.out.println("\n=== CREATION COMPTE ADMINTRATEUR ===");
-        Administrateur.creer_admin();
-    }
-
-    // 📝 CRÉATION DE COMPTE UTILISATEUR
-    private static void creerCompteUtilisateur() {
-        System.out.println("\n=== CRÉATION DE COMPTE ===");
-        //System.out.println("1. 👑 Compte Administrateur");
-        System.out.println("1. 👨‍⚕️  Compte Médecin");
-        System.out.println("2. 👨‍⚕️  Compte Infirmier");
-        System.out.println("3. 💊 Compte Pharmacien");
-        //System.out.println("5. 👤 Compte Patient");
-        System.out.println("0. ↩️  Retour");
+        System.out.println("1. 👤 Créer un compte administrateur");
+        System.out.println("2. 🧪 Lancer le mode démonstration");
+        System.out.println("0. ↩️  Retour au choix du rôle");
 
         int choix = saisirEntier("Votre choix : ");
 
         switch (choix) {
             case 1:
-                systeme.ajouter_medecin();
+                creerCompteAdministrateur();
                 break;
             case 2:
-                systeme.ajouter_infirmier();
-                break;
-            case 3:
-                systeme.ajouter_pharmacien();
+                lancerModeDemonstration();
                 break;
             case 0:
-                return;
+                // Retour simple au choix du rôle
+                break;
             default:
                 System.out.println("❌ Choix invalide.");
         }
     }
 
-    // 🏥 MENU MÉDECIN
+    /**
+     * Message d'attente pour utilisateur sans compte
+     */
+    private static void attenteInterventionAdmin() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("        ATTENTE REQUISE");
+        System.out.println("=".repeat(50));
+        System.out.println("⚠️  Vous ne pouvez pas créer de compte utilisateur.");
+        System.out.println("Veuillez contacter un administrateur pour créer votre compte.");
+        System.out.println("=".repeat(50));
+        System.out.println("Appuyez sur Entrée pour continuer...");
+        scanner.nextLine();
+    }
+
+    /**
+     * Étape 3 : Menu principal selon le rôle
+     */
+    private static boolean gererMenuPrincipal(String role) {
+        boolean dansMenuPrincipal = true;
+
+        while (dansMenuPrincipal) {
+            if (role.equals("Administrateur")) {
+                dansMenuPrincipal = afficherMenuAdmin();
+            } else {
+                dansMenuPrincipal = afficherMenuUtilisateur();
+            }
+        }
+
+        return true; // Continuer l'application (retour au choix du rôle)
+    }
+
+    /**
+     * Menu principal Administrateur
+     */
+    private static boolean afficherMenuAdmin() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("        🏠 MENU ADMINISTRATEUR");
+        System.out.println("=".repeat(50));
+        System.out.println("1. 👑 Connexion Administrateur");
+        System.out.println("2. 📊 Statistiques système");
+        System.out.println("3. 📝 Créer comptes utilisateurs");
+        System.out.println("4. 🧪 Mode Démonstration");
+        System.out.println("0. ↩️  Retour au choix du rôle");
+        System.out.println("=".repeat(50));
+
+        int choix = saisirEntier("Votre choix : ");
+
+        switch (choix) {
+            case 1:
+                connexionAdmin();
+                break;
+            case 2:
+                afficherStatistiquesRapides();
+                break;
+            case 3:
+                creerCompteUtilisateur();
+                break;
+            case 4:
+                lancerModeDemonstration();
+                break;
+            case 0:
+                return false; // Quitter ce menu
+            default:
+                System.out.println("❌ Choix invalide.");
+        }
+        return true; // Rester dans ce menu
+    }
+
+    /**
+     * Menu principal Utilisateur
+     */
+    private static boolean afficherMenuUtilisateur() {
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("        🏠 MENU UTILISATEUR");
+        System.out.println("=".repeat(50));
+        System.out.println("1. 👨‍⚕️  Connexion Médecin");
+        System.out.println("2. 👨‍⚕️  Connexion Infirmier");
+        System.out.println("3. 💊 Connexion Pharmacien");
+        System.out.println("4. 🧪 Mode Démonstration");
+        System.out.println("0. ↩️  Retour au choix du rôle");
+        System.out.println("=".repeat(50));
+
+        int choix = saisirEntier("Votre choix : ");
+
+        switch (choix) {
+            case 1:
+                connexionMedecin();
+                break;
+            case 2:
+                connexionInfirmier();
+                break;
+            case 3:
+                connexionPharmacien();
+                break;
+            case 4:
+                lancerModeDemonstration();
+                break;
+            case 0:
+                return false; // Quitter ce menu
+            default:
+                System.out.println("❌ Choix invalide.");
+        }
+        return true; // Rester dans ce menu
+    }
+
+    // ==================== MÉTHODES DE CONNEXION ====================
+
+    private static void connexionAdmin() {
+        System.out.println("\n=== CONNEXION ADMINISTRATEUR ===");
+        if (Administrateur.connecterAdmin()) {
+            Administrateur admin = new Administrateur();
+            admin.afficherMenuAdministrateur();
+        }
+    }
+
+    private static void connexionMedecin() {
+        System.out.println("\n=== CONNEXION MÉDECIN ===");
+        if (Utilisateur.seConnecter()) {
+            Medecin medecin = new Medecin();
+            menuMedecin(medecin);
+        }
+    }
+
+    private static void connexionInfirmier() {
+        System.out.println("\n=== CONNEXION INFIRMIER ===");
+        if (Utilisateur.seConnecter()) {
+            Infirmier infirmier = new Infirmier();
+            menuInfirmier(infirmier);
+        }
+    }
+
+    private static void connexionPharmacien() {
+        System.out.println("\n=== CONNEXION PHARMACIEN ===");
+        if (Utilisateur.seConnecter()) {
+            Pharmacien pharmacien = new Pharmacien();
+            menuPharmacien(pharmacien);
+        }
+    }
+
+    // ==================== MÉTHODES DE CRÉATION ====================
+
+    private static void creerCompteAdministrateur() {
+        System.out.println("\n=== CRÉATION COMPTE ADMINISTRATEUR ===");
+        Administrateur.creer_admin();
+    }
+
+    private static void creerCompteUtilisateur() {
+        System.out.println("\n=== CRÉATION DE COMPTE UTILISATEUR ===");
+        System.out.println("1. 👨‍⚕️  Compte Médecin");
+        System.out.println("2. 👨‍⚕️  Compte Infirmier");
+        System.out.println("3. 💊 Compte Pharmacien");
+        System.out.println("0. ↩️  Retour");
+
+        int choix = saisirEntier("Votre choix : ");
+
+        switch (choix) {
+            case 1: systeme.ajouter_medecin(); break;
+            case 2: systeme.ajouter_infirmier(); break;
+            case 3: systeme.ajouter_pharmacien(); break;
+            case 0: return;
+            default: System.out.println("❌ Choix invalide.");
+        }
+    }
+
+    // ==================== MENUS SPÉCIALISÉS (inchangés) ====================
+
     private static void menuMedecin(Medecin medecin) {
         boolean continuer = true;
-
         while (continuer) {
             System.out.println("\n" + "=".repeat(50));
             System.out.println("        👨‍⚕️ MENU MÉDECIN");
@@ -253,54 +332,30 @@ public class Main {
             System.out.println("1. 📁 Créer dossier médical");
             System.out.println("2. 📋 Consulter dossier patient");
             System.out.println("3. 💊 Prescrire ordonnance");
-            System.out.println("4. 📝 Creer consultations");
+            System.out.println("4. 📝 Créer consultations");
             System.out.println("5. 👤 Créer patient");
             System.out.println("6. 📊 Mes statistiques");
             System.out.println("7. 👤 Mon profil");
             System.out.println("8. 📁 Import/Export");
             System.out.println("0. 🚪 Déconnexion");
 
-            int choix = saisirEntier("Votre choix : ");
-
-            switch (choix) {
-                case 1:
-                    medecin.creerDossierMedical();
-                    break;
-                case 2:
-                    medecin.consulterDossierPatient();
-                    break;
-                case 3:
-                    medecin.prescrireOrdonnance();
-                    break;
-                case 4:
-                    Medecin.creerConsultationStatic();
-                    break;
-                case 5:
-                    medecin.creerPatient();
-                    break;
-                case 6:
-                    medecin.afficherStatistiques();
-                    break;
-                case 7:
-                    medecin.afficherProfil();
-                    break;
-                case 8:
-                    SystemeMedipass.menuImportExport(medecin);
-                    break;
-                case 0:
-                    continuer = false;
-                    medecin.seDeconnecter();
-                    break;
-                default:
-                    System.out.println("❌ Choix invalide.");
+            switch (saisirEntier("Votre choix : ")) {
+                case 1: medecin.creerDossierMedical(); break;
+                case 2: medecin.consulterDossierPatient(); break;
+                case 3: medecin.prescrireOrdonnance(); break;
+                case 4: medecin.creerConsultationStatic(); break;
+                case 5: medecin.creerPatient(); break;
+                case 6: medecin.afficherStatistiques(); break;
+                case 7: medecin.afficherProfil(); break;
+                case 8: SystemeMedipass.menuImportExport(medecin); break;
+                case 0: continuer = false; medecin.seDeconnecter(); break;
+                default: System.out.println("❌ Choix invalide.");
             }
         }
     }
 
-    // 🏥 MENU INFIRMIER
     private static void menuInfirmier(Infirmier infirmier) {
         boolean continuer = true;
-
         while (continuer) {
             System.out.println("\n" + "=".repeat(50));
             System.out.println("        👨‍⚕️ MENU INFIRMIER");
@@ -310,32 +365,18 @@ public class Main {
             System.out.println("3. 👤 Mon profil");
             System.out.println("0. 🚪 Déconnexion");
 
-            int choix = saisirEntier("Votre choix : ");
-
-            switch (choix) {
-                case 1:
-                    infirmier.consulterDossierPatient();
-                    break;
-                case 2:
-                    infirmier.ajouterObservations();
-                    break;
-                case 3:
-                    infirmier.afficherProfil();
-                    break;
-                case 0:
-                    continuer = false;
-                    infirmier.seDeconnecter();
-                    break;
-                default:
-                    System.out.println("❌ Choix invalide.");
+            switch (saisirEntier("Votre choix : ")) {
+                case 1: infirmier.consulterDossierPatient(); break;
+                case 2: infirmier.ajouterObservations(); break;
+                case 3: infirmier.afficherProfil(); break;
+                case 0: continuer = false; infirmier.seDeconnecter(); break;
+                default: System.out.println("❌ Choix invalide.");
             }
         }
     }
 
-    // 💊 MENU PHARMACIEN
     private static void menuPharmacien(Pharmacien pharmacien) {
         boolean continuer = true;
-
         while (continuer) {
             System.out.println("\n" + "=".repeat(50));
             System.out.println("        💊 MENU PHARMACIEN");
@@ -346,66 +387,41 @@ public class Main {
             System.out.println("4. 📁 Import/Export");
             System.out.println("0. 🚪 Déconnexion");
 
-            int choix = saisirEntier("Votre choix : ");
-
-            switch (choix) {
-                case 1:
-                    pharmacien.verifierOrdonnance();
-                    break;
-                case 2:
-                    pharmacien.consulterOrdonnancesPatient();
-                    break;
-                case 3:
-                    pharmacien.afficherProfil();
-                    break;
-                case 4:
-                    SystemeMedipass.menuImportExport(pharmacien);
-                    break;
-                case 0:
-                    continuer = false;
-                    pharmacien.seDeconnecter();
-                    break;
-                default:
-                    System.out.println("❌ Choix invalide.");
+            switch (saisirEntier("Votre choix : ")) {
+                case 1: pharmacien.verifierOrdonnance(); break;
+                case 2: pharmacien.consulterOrdonnancesPatient(); break;
+                case 3: pharmacien.afficherProfil(); break;
+                case 4: SystemeMedipass.menuImportExport(pharmacien); break;
+                case 0: continuer = false; pharmacien.seDeconnecter(); break;
+                default: System.out.println("❌ Choix invalide.");
             }
         }
     }
 
+    // ==================== MÉTHODES UTILITAIRES ====================
 
-    // 📊 STATISTIQUES RAPIDES
     private static void afficherStatistiquesRapides() {
         System.out.println("\n" + "=".repeat(50));
         System.out.println("        📊 STATISTIQUES RAPIDES");
         System.out.println("=".repeat(50));
-
-        // Statistiques des dossiers
         GestionnaireDossiers.afficherStatistiquesGenerales();
-
-        // Statistiques des ordonnances
-        SystemeMedipass systeme = new SystemeMedipass();
-
         System.out.println("\n📈 ACTIVITÉ RÉCENTE :");
         GestionnaireDossiers.afficherDossiersPlusActifs();
-
         System.out.println("\n📝 DERNIÈRES ACTIONS :");
         GestionnaireHistorique.afficherHistorique();
     }
 
-    // 🛠️ MÉTHODE UTILITAIRE POUR LA SAISIE
     private static int saisirEntier(String message) {
         while (true) {
             try {
                 System.out.print(message);
-                return scanner.nextInt();
+                int choix = scanner.nextInt();
+                scanner.nextLine(); // Vider le buffer
+                return choix;
             } catch (Exception e) {
                 System.out.println("❌ Veuillez entrer un nombre valide.");
                 scanner.nextLine(); // Vider le buffer
             }
         }
-    }
-
-    // Méthode pour vider le buffer du scanner
-    private static void viderBuffer() {
-        scanner.nextLine();
     }
 }
