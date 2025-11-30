@@ -216,30 +216,24 @@ public class Main {
     // 📝 CRÉATION DE COMPTE UTILISATEUR
     private static void creerCompteUtilisateur() {
         System.out.println("\n=== CRÉATION DE COMPTE ===");
-        System.out.println("1. 👑 Compte Administrateur");
-        System.out.println("2. 👨‍⚕️  Compte Médecin");
-        System.out.println("3. 👨‍⚕️  Compte Infirmier");
-        System.out.println("4. 💊 Compte Pharmacien");
-        System.out.println("5. 👤 Compte Patient");
+        //System.out.println("1. 👑 Compte Administrateur");
+        System.out.println("1. 👨‍⚕️  Compte Médecin");
+        System.out.println("2. 👨‍⚕️  Compte Infirmier");
+        System.out.println("3. 💊 Compte Pharmacien");
+        //System.out.println("5. 👤 Compte Patient");
         System.out.println("0. ↩️  Retour");
 
         int choix = saisirEntier("Votre choix : ");
 
         switch (choix) {
             case 1:
-                Administrateur.creer_admin();
-                break;
-            case 2:
                 systeme.ajouter_medecin();
                 break;
-            case 3:
+            case 2:
                 systeme.ajouter_infirmier();
                 break;
-            case 4:
+            case 3:
                 systeme.ajouter_pharmacien();
-                break;
-            case 5:
-                SystemeMedipass.ajouterPatient();
                 break;
             case 0:
                 return;
