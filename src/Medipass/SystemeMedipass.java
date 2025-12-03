@@ -12,9 +12,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.Date;
 import java.util.*;
 
 public class SystemeMedipass {
@@ -40,33 +37,40 @@ public class SystemeMedipass {
 
         // Informations personnelles
         System.out.println("Veuillez saisir votre nom : ");
-        String nom = sc.nextLine().trim();
+        String nom = affectInfo( sc.nextLine().trim(), sc );
         while (nom.isEmpty()) {
             System.out.println("Le nom est obligatoire : ");
-            nom = sc.nextLine().trim();
+            nom = affectInfo( sc.nextLine().trim(), sc );
         }
 
         System.out.println("Veuillez saisir votre prénom : ");
-        String prenom = sc.nextLine().trim();
+        String prenom = affectInfo( sc.nextLine().trim(), sc );
         while (prenom.isEmpty()) {
             System.out.println("Le prénom est obligatoire : ");
-            prenom = sc.nextLine().trim();
+            prenom = affectInfo( sc.nextLine().trim(), sc );
         }
-
-        System.out.println("Veuillez saisir votre email : ");
-        String email = sc.nextLine().trim();
-
+        
+        System.out.println("Veuillez saisir votre email : [ ex.: xxx@gmail.com ] ");
+        String email;
+        do {
+            email = affectInfo( sc.nextLine(), sc );
+        } while (!verifierEmailFormat(email));
+        
         System.out.println("Veuillez saisir votre specialite : ");
-        String specialite = sc.nextLine().trim();
+        String specialite = affectInfo( sc.nextLine().trim(), sc );
 
         System.out.println("Veuillez saisir votre numéro de téléphone : ");
         String numero_de_telephone = sc.nextLine().trim();
+        while (numero_de_telephone.length() < 10) {// 8
+            System.out.println("Le numero doit comporter exactement 10 chiffre");
+            numero_de_telephone = sc.nextLine().trim();
+        }   // verifier la taille
 
         System.out.println("Veuillez saisir votre adresse : ");
-        String adresse = sc.nextLine().trim();
+        String adresse = affectInfo( sc.nextLine().trim(), sc );
 
         System.out.println("Veuillez saisir votre date de naissance : ");
-        String date_de_naissance = sc.nextLine().trim();
+        String date_de_naissance = affectInfo( sc.nextLine().trim(), sc );
 
         //  Génération AUTOMATIQUE de l'identifiant
         String id = genererIdMedical(nom, prenom);
@@ -102,30 +106,37 @@ public class SystemeMedipass {
 
         // Informations personnelles
         System.out.println("Veuillez saisir votre nom : ");
-        String nom = sc.nextLine().trim();
+        String nom = affectInfo( sc.nextLine().trim(), sc );
         while (nom.isEmpty()) {
             System.out.println("Le nom est obligatoire : ");
-            nom = sc.nextLine().trim();
+            nom = affectInfo( sc.nextLine().trim(), sc );
         }
 
         System.out.println("Veuillez saisir votre prénom : ");
-        String prenom = sc.nextLine().trim();
+        String prenom = affectInfo( sc.nextLine().trim(), sc );
         while (prenom.isEmpty()) {
             System.out.println("Le prénom est obligatoire : ");
-            prenom = sc.nextLine().trim();
+            prenom = affectInfo( sc.nextLine().trim(), sc );
         }
-
-        System.out.println("Veuillez saisir votre email : ");
-        String email = sc.nextLine().trim();
-
+        
+        System.out.println("Veuillez saisir votre email [ ex.: xxx@gmail.com ] : ");
+        String email;
+        do {
+            email = affectInfo( sc.nextLine(), sc );
+        } while (!verifierEmailFormat(email));
+        
         System.out.println("Veuillez saisir votre specialite : ");
-        String specialite = sc.nextLine().trim();
+        String specialite = affectInfo( sc.nextLine().trim(), sc );
 
         System.out.println("Veuillez saisir votre numéro de téléphone : ");
         String numero_de_telephone = sc.nextLine().trim();
+        while (numero_de_telephone.length() < 10) {// 8
+            System.out.println("La numero doit comporter exactement 10 chiffre");
+            numero_de_telephone = sc.nextLine().trim();
+        }   // verifier la taille
 
         System.out.println("Veuillez saisir votre adresse : ");
-        String adresse = sc.nextLine().trim();
+        String adresse = affectInfo( sc.nextLine().trim(), sc );
 
         System.out.println("Veuillez saisir votre date de naissance : ");
         String date_de_naissance = sc.nextLine().trim();
@@ -166,30 +177,37 @@ public class SystemeMedipass {
 
         // Informations personnelles
         System.out.println("Veuillez saisir votre nom : ");
-        String nom = sc.nextLine().trim();
+        String nom = affectInfo( sc.nextLine().trim(), sc );
         while (nom.isEmpty()) {
             System.out.println("Le nom est obligatoire : ");
-            nom = sc.nextLine().trim();
+            nom = affectInfo( sc.nextLine().trim(), sc );
         }
 
         System.out.println("Veuillez saisir votre prénom : ");
-        String prenom = sc.nextLine().trim();
+        String prenom = affectInfo( sc.nextLine().trim(), sc );
         while (prenom.isEmpty()) {
             System.out.println("Le prénom est obligatoire : ");
-            prenom = sc.nextLine().trim();
+            prenom = affectInfo( sc.nextLine().trim(), sc );
         }
-
-        System.out.println("Veuillez saisir votre email : ");
-        String email = sc.nextLine().trim();
+        
+        System.out.println("Veuillez saisir votre email [ ex.: xxx@gmail.com ] : ");
+        String email;
+        do {
+            email = affectInfo( sc.nextLine(), sc );
+        } while (!verifierEmailFormat(email));
 
         System.out.println("Veuillez saisir votre numéro de téléphone : ");
         String numero_de_telephone = sc.nextLine().trim();
+        while (numero_de_telephone.length() < 10) {// 8
+            System.out.println("Le numero doit comporter exactement 10 chiffre");
+            numero_de_telephone = sc.nextLine().trim();
+        }   // verifier la taille
 
         System.out.println("Veuillez saisir votre adresse : ");
-        String adresse = sc.nextLine().trim();
+        String adresse = affectInfo( sc.nextLine().trim(), sc );
 
         System.out.println("Veuillez saisir votre date de naissance : ");
-        String date_de_naissance = sc.nextLine().trim();
+        String date_de_naissance = affectInfo( sc.nextLine().trim(), sc );
 
         //  Génération AUTOMATIQUE de l'identifiant
         String id = genererIdMedical(nom, prenom);
@@ -252,6 +270,54 @@ public class SystemeMedipass {
                     .replaceAll("[^a-z]", ""); // Garder seulement les lettres
         }
 
+    //
+    // gestion des infos
+    public static String affectInfo(String info, Scanner scann) {
+        String infoClassIntType;
+        Integer infoParsedInt;
+        int essais = 0;
+        try {
+            do {
+                if ( essais > 0 ) {
+                    System.out.println("*** Saisissez une chaine de caracteres");
+                    info = scann.nextLine();
+                }
+                // info : String or int
+                infoParsedInt = Integer.parseInt(info); // 1
+                infoClassIntType = infoParsedInt.getClass().getSimpleName();    // 2
+                System.out.println("Type de données invalides");
+                essais++;
+            } while ( infoClassIntType.equals("Integer") );
+        } catch (NumberFormatException nfe) {
+            // nfe.printStackTrace();
+            //scann.nextLine();
+        }
+        return info;
+    }
+
+    // verifier le format de fin de l'email
+    public static boolean verifierEmailFormat(String email) {
+        String[] emailI = email.split("");
+        final String RULES = "@gmail.com";
+        String suffixe = "";
+        int check = 0;
+        // Verifyin'
+        for (String e : emailI) {
+            if ( (e.equals("@")) || (check>0) ) {
+                suffixe += e;
+                check++;
+            }
+        }
+        // Comparaison
+        if ( suffixe.equals(RULES) ) {
+            return true;
+        }
+        else {
+            System.out.println("*** Veuillez respecter la norme : xxx"+ RULES);
+            return false;
+        }
+    }
+
 
     //historique
     public static void listageHistorique() {
@@ -269,30 +335,41 @@ public class SystemeMedipass {
 
         // Informations personnelles
         System.out.println("Veuillez saisir votre nom : ");
-        String nom = sc.nextLine().trim();
+        String nom = affectInfo( sc.nextLine().trim(), sc );
         while (nom.isEmpty()) {
             System.out.println("Le nom est obligatoire : ");
-            nom = sc.nextLine().trim();
+            nom = affectInfo( sc.nextLine().trim(), sc );
         }
 
         System.out.println("Veuillez saisir votre prénom : ");
-        String prenom = sc.nextLine().trim();
+        String prenom = affectInfo( sc.nextLine().trim(), sc );
         while (prenom.isEmpty()) {
             System.out.println("Le prénom est obligatoire : ");
-            prenom = sc.nextLine().trim();
+            prenom = affectInfo( sc.nextLine().trim(), sc );
         }
-
-        System.out.println("Veuillez saisir votre email : ");
-        String email = sc.nextLine().trim();
+        
+        System.out.println("Veuillez saisir votre email [ ex.: xxx@gmail.com ] : ");
+        String email;
+        int essais = 0;
+        do {
+            if ( essais>0 ) 
+                System.out.println("Veuillez respecter le format");
+            email = affectInfo( sc.nextLine().trim(), sc );
+            essais++;
+        } while (!verifierEmailFormat(email));
 
         System.out.println("Veuillez saisir votre numéro de téléphone : ");
         String numero_de_telephone = sc.nextLine().trim();
+        while (numero_de_telephone.length() < 10) {// 8
+            System.out.println("La numero doit comporter exactement 10 chiffre");
+            numero_de_telephone = sc.nextLine().trim();
+        }   // verifier la taille
 
         System.out.println("Veuillez saisir votre adresse : ");
-        String adresse = sc.nextLine().trim();
+        String adresse = affectInfo( sc.nextLine().trim(), sc );
 
         System.out.println("Veuillez saisir votre date de naissance : ");
-        String date_de_naissance = sc.nextLine().trim();
+        String date_de_naissance = affectInfo( sc.nextLine().trim(), sc );
 
         System.out.println("Veuillez Entrer votre sexe (M pour masculin et F pour feminin : ");
         String sexe = sc.nextLine().trim().toUpperCase();
